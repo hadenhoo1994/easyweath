@@ -29,8 +29,8 @@ public class EasyWeatherOpenHelper extends SQLiteOpenHelper {
     /*
     *County表 建表语句
      */
-    public  static final String CREAT_COUNTY = "create table County)"
-            + "id integer primary key autoincerement, "
+    public  static final String CREATE_COUNTY = "create table County("
+            + "id integer primary key autoincrement, "
             + "county_name text, "
             + "county_code text, "
             + "city_id integer)";
@@ -44,7 +44,7 @@ public class EasyWeatherOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_PROVINCE);//创建provin表
         db.execSQL(CREATE_CITY);//创建city表
-        db.execSQL(CREAT_COUNTY);//创建county表
+        db.execSQL(CREATE_COUNTY);//创建county表
     }
 
     @Override
