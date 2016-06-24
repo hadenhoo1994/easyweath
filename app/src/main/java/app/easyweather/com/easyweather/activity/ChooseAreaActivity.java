@@ -43,8 +43,7 @@ public class ChooseAreaActivity extends Activity {
     /*
     * 省列表
     * */
-
-    private  List<Province> provincesList;
+    private List<Province> provincesList;
     /*
     * 市列表
     * */
@@ -79,85 +78,85 @@ public class ChooseAreaActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
-                if (currentLevel == LEVEL_PROVINCE){
+                if (currentLevel == LEVEL_PROVINCE) {
                     selectedProvince = provincesList.get(index);
                     queryCities();
-                }else if (currentLevel == LEVEL_CITY){
+                } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(index);
                     queryCounties();
                 }
             }
+
         });
         queryProvinces();//加载省级数据
     }
 
+
     /*
-    * 查询全国所有省,优先从数据库查询,如果没有,再到服务器上查询
+    * 查询全国所有省,优先从数据库查询,如果没有查询到再去服务器上查询
     * */
-    private void queryProvinces(){
+    private void queryProvinces() {
         provincesList = easyWeatherDB.loadProvinces();
-        if (provincesList.size() >0){
+        if (provincesList.size() > 0) {
             dataList.clear();
-            for (Province province : provincesList){
+            for (Province province : provincesList) {
                 dataList.add(province.getProvinceName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             titleText.setText("中国");
             currentLevel = LEVEL_PROVINCE;
-        }else {
+        } else {
             queryFromServer(null, "province");
         }
     }
 
-
     /*
-    * 查选中的省内所有的市,优先从数据库查询,如果没有,再到服务器上查询
+    * 查询选中省内的所有市级,优先从数据库查找,如果没有再到服务器上查询
     * */
-    private void queryCities(){
+    private void queryCities() {
         cityList = easyWeatherDB.loadCities(selectedProvince.getId());
-        if (provincesList.size() >0){
+        if (cityList.size() > 0) {
             dataList.clear();
-            for (City city : cityList){
+            for (City city : cityList) {
                 dataList.add(city.getCityName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             titleText.setText(selectedProvince.getProvinceName());
             currentLevel = LEVEL_CITY;
-        }else {
+        } else {
             queryFromServer(selectedProvince.getProvinceCode(), "city");
         }
     }
 
-    /*
-    * 查选中的市内所有的县,优先从数据库查询,如果没有,再到服务器上查询
-    * */
-    private  void queryCounties(){
+    /**
+     * 查询选中市内所有的县，优先从数据库查询，如果没有查询到再去服务器上查询。
+     */
+    private void queryCounties() {
         countyList = easyWeatherDB.loadCounties(selectedCity.getId());
-        if (countyList.size() >0){
-            dataList.clear();;
-            for (County county : countyList){
+        if (countyList.size() > 0) {
+            dataList.clear();
+            for (County county : countyList) {
                 dataList.add(county.getCountyName());
             }
-            adapter.notifyDataSetChanged();;
+            adapter.notifyDataSetChanged();
             listView.setSelection(0);
             titleText.setText(selectedCity.getCityName());
             currentLevel = LEVEL_COUNTY;
-        }else {
+        } else {
             queryFromServer(selectedCity.getCityCode(), "county");
         }
     }
 
-
-    /*
-    * 根据传入的代号和类型从服务器上查询省市县数据
-    * */
-    private void queryFromServer(final String code,final String type) {
+    /**
+     * 根据传入的代号和类型从服务器上查询省市县数据。
+     */
+    private void queryFromServer(final String code, final String type) {
         String address;
-        if (!TextUtils.isEmpty(code)){
-            address = "http://www.weather.com.cn/data/list3/city" + code + ".xlm";
-        }else {
+        if (!TextUtils.isEmpty(code)) {
+            address = "http://www.weather.com.cn/data/list3/city" + code + ".xml";
+        } else {
             address = "http://www.weather.com.cn/data/list3/city.xml";
         }
         showProgressDialog();
@@ -165,24 +164,27 @@ public class ChooseAreaActivity extends Activity {
             @Override
             public void onFinish(String response) {
                 boolean result = false;
-                if ("province".equals(type)){
-                    result = Utility.handleProvincesResponse(easyWeatherDB, response);
-                }else if ("city".equals(type)){
-                    result = Utility.handleCitiesResponse(easyWeatherDB, response ,selectedProvince.getId());
-                }else if ("county".equals(type)){
-                    result = Utility.handleCountiesResponse(easyWeatherDB,response ,selectedCity.getId());
+                if ("province".equals(type)) {
+                    result = Utility.handleProvincesResponse(easyWeatherDB,
+                            response);
+                } else if ("city".equals(type)) {
+                    result = Utility.handleCitiesResponse(easyWeatherDB,
+                            response, selectedProvince.getId());
+                } else if ("county".equals(type)) {
+                    result = Utility.handleCountiesResponse(easyWeatherDB,
+                            response, selectedCity.getId());
                 }
-                if (result){
-                    //通过runOnUiThread方法回到主线程处理逻辑
+                if (result) {
+                    // 通过runOnUiThread()方法回到主线程处理逻辑
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeProgressDialog();
                             if ("province".equals(type)) {
                                 queryProvinces();
-                            }else if ("city".equals(type)) {
+                            } else if ("city".equals(type)) {
                                 queryCities();
-                            }else if ("county".equals(type)){
+                            } else if ("county".equals(type)) {
                                 queryCounties();
                             }
                         }
@@ -190,53 +192,55 @@ public class ChooseAreaActivity extends Activity {
                 }
             }
 
+
             @Override
             public void onError(Exception e) {
-                //通过runOnUiThread方法回到主线程处理器
+                //通过runOnUiThread()方法回到主线程处理逻辑
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(ChooseAreaActivity.this,"加载失败",Toast.LENGTH_SHORT).show();
+                        ;
+                        Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
                     }
                 });
+
             }
         });
-
     }
+
     /*
     * 显示进度对话框
     * */
-    private void showProgressDialog() {
-        if (progressDialog == null){
-         progressDialog = new ProgressDialog(this);
+    private void closeProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
             progressDialog.setMessage("loading...");
             progressDialog.setCanceledOnTouchOutside(false);
         }
-        progressDialog.show();
     }
 
     /*
     * 关闭进度对话框
     * */
-    private void closeProgressDialog() {
-        if (progressDialog != null){
+    private void showProgressDialog() {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }
 
     /*
-    * 捕获back按键,根据当前级别判断返回市级列表/省级列表/直接退出
+    * 捕获Back按键,根据当前的级别来判断,此时应当返回市级列表/省级列表/退出
     * */
+
     @Override
-    public   void onBackPressed(){
-        if (currentLevel == LEVEL_COUNTY){
+    public void onBackPressed() {
+        if (currentLevel == LEVEL_COUNTY) {
             queryCities();
-        }else if (currentLevel == LEVEL_CITY){
+        } else if (currentLevel == LEVEL_CITY) {
             queryProvinces();
-        }else {
+        } else {
             finish();
         }
     }
-
 }

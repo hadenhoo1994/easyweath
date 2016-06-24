@@ -42,7 +42,7 @@ public class EasyWeatherOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_PROVINCE);//创建provin表
+        db.execSQL(CREATE_PROVINCE);//创建province表
         db.execSQL(CREATE_CITY);//创建city表
         db.execSQL(CREATE_COUNTY);//创建county表
     }
