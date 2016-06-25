@@ -16,6 +16,7 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 
 import app.easyweather.com.easyweather.R;
+import app.easyweather.com.easyweather.receiver.AutoUpdataReceiver;
 import app.easyweather.com.easyweather.util.HttpCallbackListener;
 import app.easyweather.com.easyweather.util.HttpUtil;
 import app.easyweather.com.easyweather.util.Utility;
@@ -161,6 +162,8 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         currentDateText.setText(prefs.getString("current_date", ""));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
+        Intent intent = new Intent(this, AutoUpdataReceiver.class);
+        startService(intent);
     }
 
     @Override
